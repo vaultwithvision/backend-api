@@ -1,0 +1,31 @@
+{
+  "name": "visionvaultbackendapi",
+  "version": "1.0.0",
+  "description": "Empowering Futures, Safeguarding Visions – Your Knowledge, Our Vault.",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start:server": "npm run src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vaultwithvision/backend-api.git"
+  },
+  "keywords": [
+    "OpenSource",
+    "Javascript",
+    "NodeJs",
+    "ExpressJs",
+    "MongoDB",
+    "Mongoose",
+    "Clouninary",
+    "VisionVault"
+  ],
+  "author": "Arnab Gupta",
+  "license": "CC0-1.0",
+  "bugs": {
+    "url": "https://github.com/vaultwithvision/backend-api/issues"
+  },
+  "homepage": "https://github.com/vaultwithvision/backend-api#readme"
+}
