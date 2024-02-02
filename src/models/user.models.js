@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
-import { spokenLanguages } from '../constants/spokenLanguages';
+import { spokenLanguages } from '../constants/spokenLanguages.constants.js';
 
 
 const userSchema = new mongoose.Schema(
@@ -39,7 +39,7 @@ const userSchema = new mongoose.Schema(
         },
         canLogIn: {
             type: Boolean,
-            default: false,
+            default: true,
         },
         selfRegistered: {
             type: Boolean,
@@ -59,16 +59,19 @@ const userSchema = new mongoose.Schema(
             default: 'reader',
         },
         viewHistory: [{
-            //TODO: add Item ref here.
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Item'
         }],
         userAnalytics: {
-            //TODO: add ref from another model.
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'UserAnalytic'
         },
         userActivityLog: [{
-            //TODO: add ref from another model.
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'UserActivityLog'
         }],
         socialMediaLinks: [
-            {type: String, default: ""}
+            { type: String, default: "" }
         ],
         profileVisibility: {
             type: Boolean,
