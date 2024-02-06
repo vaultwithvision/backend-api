@@ -31,3 +31,13 @@ const registerUser = asyncHandlerWithPromise(
         // TODO: to write user-register controller with proper error handling
     }
 );
+
+
+const loginUser = asyncHandlerWithPromise(
+    async(req, res) => {
+        // TODO: to write user-login controller with proper error handling
+    }
+);
+
+
+export { registerUser, loginUser }

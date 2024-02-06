@@ -74,8 +74,8 @@ const itemSchema = new mongoose.Schema(
     },
     documentLevel: {
         type: String,
-        enum: itemLevels.name,
-        default: itemLevels.name === "Public Access"
+        enum: itemLevels.map(levelName => levelName.name),
+        default: 'Public Access'
     }
     },
   { timestamps: true }

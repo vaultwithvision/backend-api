@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 import { spokenLanguages } from '../constants/spokenLanguages.constants.js';
+import { userRoles } from '../constants/userRoles.constants.js';
 
 
 const userSchema = new mongoose.Schema(
@@ -55,7 +56,7 @@ const userSchema = new mongoose.Schema(
         },
         role: {
             type: String,
-            enum: ['superAdmin', 'admin', 'reviewer','moderator', 'reader'],
+            enum: userRoles.map(role => role.name),  // Getting all the role names from the  array of objects in constant file.
             default: 'reader',
         },
         viewHistory: [{
@@ -83,8 +84,8 @@ const userSchema = new mongoose.Schema(
         },
         languagePreferences: [{
             type: String,
-            enum: spokenLanguages.name,
-            default: [spokenLanguages.name === 'English']
+            enum: spokenLanguages.map(language => language.name),
+            default: "English"
         }],
         themePreferences: {
             type: String,
