@@ -54,6 +54,10 @@ const userSchema = new mongoose.Schema(
         refreshToken: {
             type: String,
         },
+        verified: {
+            type: Boolean,
+            default: false
+        },
         role: {
             type: String,
             enum: userRoles.map(role => role.name),  // Getting all the role names from the  array of objects in constant file.
