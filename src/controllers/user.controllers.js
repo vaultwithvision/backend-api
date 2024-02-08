@@ -91,7 +91,7 @@ const registerUser = asyncHandlerWithPromise(
                 profilePictureLocalPath = req.files.profilePicture[0].path;
             }
             if (!profilePictureLocalPath) {
-                alert("Are you sure you want to register without profile picture?")
+                console.log("Are you sure you want to register without profile picture?");
             }
 
             let coverImageLocalPath;
@@ -116,7 +116,9 @@ const registerUser = asyncHandlerWithPromise(
                     lastName,
                     profilePicture,
                     coverImage,
-                    password
+                    password,
+                    profilePicture: profilePicture?.url || "",
+                    coverImage: coverImage?.url || ""
                 }
             );
 
@@ -144,6 +146,7 @@ const registerUser = asyncHandlerWithPromise(
             userEmail = getRecentlyCreatedUserFromDBbyId.email;
             secretCode = tokenCode;
 
+            console.log("Sending Verification Email..");
             await sendEmail(userEmail, emailSubject, emailBody);
 
             // if user is created, return response

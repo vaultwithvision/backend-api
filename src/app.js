@@ -34,11 +34,11 @@ app.use(cookieParser());
 
 
 // Routes import below
-
+import userRouter from './routes/user.routes.js';
 
 
 // Routes declarations
-
+app.use("/api/v1/auth", userRouter);
 
 
 export { app }

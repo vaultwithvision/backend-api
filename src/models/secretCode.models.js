@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 const tokenSchema = new mongoose.Schema(
     {
         user: {
-            trpe: mongoose.Schema.Types.ObjectId,
+            type: mongoose.Schema.Types.ObjectId,
             ref: "User",
             required: true,
         },
