@@ -215,7 +215,7 @@ const verifyAccountViaEmail = asyncHandlerWithPromise(
                                     updatedUser,
                                     "Your Account has been verified successfully."
                                 )
-                            )
+                            );
 
         } catch (error) {
             res.status(400)
@@ -229,42 +229,281 @@ const verifyAccountViaEmail = asyncHandlerWithPromise(
 // User controller for login
 const loginUser = asyncHandlerWithPromise(
     async(req, res) => {
-        // TODO: to write user-login controller with proper error handling
+
+        try {
+            // get the data from req.body
+            const { email, password } = req.body;
+    
+            // check for the email existance
+            if (!email) {
+                throw new APIerrorHandler(400, "Email is required to login!");
+            };
+    
+            // find the user by email
+            const user = await User.findOne(
+                { $or: [ {email}] }
+            );
+            if (!user) {
+                throw new APIerrorHandler(404, "User does not exist. Please Register first and then try to login.")
+            };
+    
+            // check password for the user
+            const isCorrectPassword = user.verifyPassword(password);
+            if (!isCorrectPassword) {
+                throw new APIerrorHandler(401, "Invalid user credentials!");
+            };
+    
+            // generate refreshToken and accessToken for the user
+            const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(user._id);
+    
+            // getting logged-in user details from the DB
+            const loggedInUser = await User.findById(user._id).select(
+                "-password -refreshToken"
+            );
+    
+            // send the access and refresh token by cookie
+            const options = {
+                httpOnly: true,
+                secure: true
+            };
+            
+            // sending response 
+            return res.status(200)
+                            .cookie("access-token", accessToken, options)
+                            .cookie("refresh-token", refreshToken, options)
+                            .json(
+                                new APIresponseHandler(
+                                    200,
+                                    {
+                                        user: loggedInUser, accessToken, refreshToken
+                                    },
+                                    "Successfully logged-in the user."
+                                )
+                            );
+        } catch (error) {
+            throw new APIerrorHandler(400, "Unable to login!")
+        }
+
     }
 );
 
 // User controller for logout
 const logoutUser = asyncHandlerWithPromise(
     async(req, res) => {
-        // TODO: to write user-logout controller with proper error handling
+        
+        try {
+            // getting userId from req.user
+            const userId = req.user._id;
+    
+            // finding the requesting user from DB by Id
+            await User.findByIdAndUpdate(
+                userId,
+                {
+                    // without changing the value this removes the field from the mongoDB document.
+                    $unset: {
+                        refreshToken: 1
+                    }
+                }, { new: true }
+            );
+    
+            // setting token options
+            const options = {
+                httpOnly: true, 
+                secure: true
+            };
+    
+            //sending response
+            return res.status(200)
+                            .clearCookie("access-token", options)
+                            .clearCookie("refresh-token", options)
+                            .json(
+                                new APIerrorHandler(
+                                    200, 
+                                    {},
+                                    "User LoggedOut Successfully.."
+                                )
+                            );
+        } catch (error) {
+            throw new APIerrorHandler(400, "Unable to logged you out!")
+        }
     }
 );
 
 // User controller to get current logged in user
 const getCurrentLoggedInUser = asyncHandlerWithPromise(
     async(req, res) => {
-        //TODO: get current logged-in user
+        
+        try {
+            // getting user-id from req.user
+            const userId = req.user._id;
+    
+            // getting the user from DB 
+            const user = await User.findOne(userId).select(
+                "-password refreshToken"
+            );
+    
+            // sending response 
+            return res.status(200)
+                            .json(
+                                new APIresponseHandler(
+                                    200,
+                                    user,
+                                    "User account fetched successfully"
+                                )
+                            );
+        } catch (error) {
+            throw new APIerrorHandler(400, "Unable to get the user!")
+        }
+
     }
 );
 
 // User controller to update user details
 const updateUserDetails = asyncHandlerWithPromise(
     async(req, res) => {
-        //TODO: update user details.
+        
+        try {
+            // get details from req.body
+            const { email, firstName, lastName } = req.body
+            // getting userID from request
+            const userID = req.user?._id
+    
+            // checking for the userID
+            if (!userID) {
+                throw new APIerrorHandler(400, "Invalid Request!")
+            }
+    
+            // checking for user-input
+            if (
+                [email, firstName, lastName].some((field) => field.trim() === "")
+            ) {
+                throw new APIerrorHandler(400, "All the fields are required!")
+            }
+    
+            // getting user from DB and updating 
+            const  user = await User.findByIdAndUpdate(
+                userID,
+                {
+                    $set: {
+                        email, 
+                        firstName,
+                        lastName
+                    }
+                },
+                { new: true }
+            ).select("-password -refreshToken");
+    
+            // sending response 
+            return res.status(200)
+                            .json(
+                                new APIresponseHandler(
+                                    200,
+                                    user,
+                                    "Account details has been updated successfully."
+                                )
+                            );
+        } catch (error) {
+            throw new APIerrorHandler(400, "Unable to update profile.")
+        }
+
     }
 );
 
 // User controller to update profile picture
 const updateUserProfilePicture = asyncHandlerWithPromise(
     async(req, res) => {
-        //TODO: update user profile picture.
+        
+        try {
+            // getting userId from request
+            const userID = req.user?._id
+    
+            // getting locally uploaded file path
+            const profilePictureLocalPath = req.file?.path
+            // checking for the existance of the fle path
+            if (!profilePictureLocalPath) {
+                throw new APIerrorHandler(400, "File is missing!")
+            } 
+    
+            // uploading file on Cloudinary
+            const profilePicture = await uploadOnCloudinary(profilePictureLocalPath);
+            // checking for the file uploading
+            if (!profilePicture) {
+                throw new APIerrorHandler(400, "Error while uploading your profile picture!")
+            }
+    
+            // uploading profilePicture of the user-profile in DB
+            const user = await User.findByIdAndUpdate(
+                userID,
+                {
+                    $set: {
+                        profilePicture: profilePicture?.url
+                    }
+                },
+                { new : true }
+            ).select("-password -refreshToken");
+    
+            // sending response
+            return res.status(200)
+                            .json(
+                                new APIresponseHandler(
+                                    200,
+                                    user,
+                                    "Profile Picture has been updated successfully."
+                                )
+                            );
+        } catch (error) {
+            throw new APIerrorHandler(400, "Unable to update profile picture!")
+        }
+
     }
 );
 
 // User controller to update cover image
 const updateUserCoverImage = asyncHandlerWithPromise(
     async(req, res) => {
-        //TODO: update user cover image.
+        
+        try {
+            // getting userId from request
+            const userID = req.user?._id
+    
+            // getting locally uploaded file path
+            const coverImageLocalPath = req.file?.path
+            // checking for the existance of the fle path
+            if (!coverImageLocalPath) {
+                throw new APIerrorHandler(400, "File is missing!")
+            } 
+    
+            // uploading file on Cloudinary
+            const coverImage = await uploadOnCloudinary(coverImageLocalPath);
+            // checking for the file uploading
+            if (!coverImage) {
+                throw new APIerrorHandler(400, "Error while uploading your Cover image!")
+            }
+    
+            // uploading coverImage of the user-cover-image in DB
+            const user = await User.findByIdAndUpdate(
+                userID,
+                {
+                    $set: {
+                        coverImage: coverImage?.url
+                    }
+                },
+                { new : true }
+            ).select("-password -refreshToken");
+    
+            // sending response
+            return res.status(200)
+                            .json(
+                                new APIresponseHandler(
+                                    200,
+                                    user,
+                                    "Cover Image has been updated successfully."
+                                )
+                            );
+        } catch (error) {
+            throw new APIerrorHandler(400, "Unable to update cover image!")
+        }
+
     }
 );
 
@@ -292,14 +531,125 @@ const getUserAactivityLog = asyncHandlerWithPromise(
 // User controller to delete user
 const deleteUserProfile = asyncHandlerWithPromise(
     async(req, res) => {
-        //TODO: delete user profile.
+        
+        try {
+            // getting user id from req
+            const userID = req.user._id;
+            // getting password from req-body
+            const { password, confirmPassword } = req.body;
+    
+            //checking for the user request
+            if (!userID) {
+                throw new APIerrorHandler(400, "Invalid Request");
+            }
+    
+            //checking for the req-body data
+            if (
+                [password, confirmPassword].some((field) => field.trim() === "")
+            ) {
+                throw new APIerrorHandler(400, "Please enter your password and confirm password to delete your account!");
+            }
+    
+            //checking for password and confirmPassword is matching or not
+            if (password !== confirmPassword) {
+                throw new APIerrorHandler(400, "Your password and confirm password doesn't match.");
+            }
+    
+            // getting user from DB
+            const user = await User.findById(userID);
+            // checking for the user
+            if (!user) {
+                throw new APIerrorHandler(400, "Unable to get user from DB");
+            }
+    
+            // checking for the user password
+            const isPasswordValid = await user.verifyPassword(password);
+            //throwing error if the password is wrong
+            if (!isPasswordValid) {
+                throw new APIerrorHandler(400, "Wrong Credential!");
+            }
+    
+            //deleting user from DB
+            await User.findByIdAndDelete(userID);
+            
+            //setting options
+            const options = {
+                httpOnly: true,
+                secure: true
+            }
+    
+            // sending response 
+            return res.status(200)
+                            .clearCookie("access-token", options)
+                            .clearCookie('refresh-token', options)
+                            .json(
+                                new APIresponseHandler(
+                                    200,
+                                    null,
+                                    "User account deleted successfully."
+                                )
+                            );
+        } catch (error) {
+            throw new APIerrorHandler(400, "Unable to delete user!")
+        }
+
     }
 );
 
 // User controller to regenerate user's access-token
 const regenerateAccessToken = asyncHandlerWithPromise(
     async(req, res) => {
-        //TODO: regenerate accesstoken after token expiry
+        
+        try {
+            //getting the refresh-token from cookies or req-body
+            const refreshToken = req.cookies.refreshToken || req.body.refreshToken;
+            //checking for the refreshToken
+            if (!refreshToken) {
+                throw new APIerrorHandler(401, "Unauthorized Request");
+            }
+    
+            //decoding the refreshToken
+            const decodedToken = jwt.verify(
+                refreshToken,
+                process.env.REFRESH_TOKEN_SECRET
+            );
+    
+            //geting the user from DB
+            const user = await User.findById(decodedToken?._id);
+            //checking for the user
+            if (!user) {
+                throw new APIerrorHandler(400, "Invalid Refresh Token!");
+            }
+    
+            // matching the token with DB 
+            if (refreshToken !== user?.refreshToken) {
+                throw new APIresponseHandler(401, "Refresh toen is expired or invaid");
+            }
+    
+            // setting options 
+            const options = {
+                httpOnly: true,
+                secure: true
+            }
+    
+            // generating new token for the user
+            const { accessToken, newRefreshToken } = await generateAccessAndRefreshTokens(user._id);
+    
+            //sending response 
+            return res.status(200)
+                            .cookie("access-token", accessToken, options)
+                            .cookie('refresh-token', newRefreshToken, options)
+                            .json(
+                                new APIresponseHandler(
+                                    200,
+                                    { accessToken, refreshToken },
+                                    "Tokens regenerated successfully."
+                                )
+                            );
+        } catch (error) {
+            throw new APIerrorHandler(401, error?.message || "Invalid refresh token.")
+        }
+
     }
 );
 
@@ -309,8 +659,6 @@ const changePassword = asyncHandlerWithPromise(
         //TODO: change password for user
     }
 );
-
-
 
 
 export { registerUser, 
@@ -327,4 +675,4 @@ export { registerUser,
             deleteUserProfile,
             regenerateAccessToken,
             changePassword
-        }
+    }
