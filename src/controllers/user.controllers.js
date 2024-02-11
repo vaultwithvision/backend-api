@@ -654,9 +654,49 @@ const regenerateAccessToken = asyncHandlerWithPromise(
 );
 
 // User controller to change current password
-const changePassword = asyncHandlerWithPromise(
+const forgotPassword = asyncHandlerWithPromise(
     async(req, res) => {
-        //TODO: change password for user
+        
+        try {
+            // getting passwords from request-body
+            const { oldPassword, newPassword, confirmPassword } = req.body
+            //checking for the newPass and confirmPass
+            if (newPassword !== confirmPassword) {
+                throw new APIerrorHandler(400, "Your new password and confirm password doesn't match. Try Again!")
+            };
+
+            //getting the user from DB
+            const user = await User.findById(req.user?.id);
+            //checking for the user existance
+            if (!user) {
+                throw new APIerrorHandler(500, "We are unable to get your details! try after some time.")
+            };
+
+            // checking for the user password
+            const isPasswordValid = await user.verifyPassword(oldPassword);
+            // if the provided password is wrong throwing error
+            if (!isPasswordValid) {
+                throw new APIerrorHandler(400, "Invalid password!")
+            };
+
+            // reseting the passsword for the user
+            user.password = newPassword;
+            // saving the new data to DB 
+            await user.save({validateBeforeSave: false});
+
+            // sending response
+            return res.status(200)
+                            .json(
+                                new APIresponseHandler(
+                                    200,
+                                    {},
+                                    "Password changed successfully."
+                                )
+                            )
+
+        } catch (error) {
+            throw new APIerrorHandler(400, "Unable to Change your password!")
+        }
     }
 );
 
@@ -674,5 +714,5 @@ export { registerUser,
             getUserAactivityLog,
             deleteUserProfile,
             regenerateAccessToken,
-            changePassword
+            forgotPassword
     }
