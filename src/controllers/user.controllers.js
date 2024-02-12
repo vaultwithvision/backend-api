@@ -96,16 +96,16 @@ const registerUser = asyncHandlerWithPromise(
 
             let coverImageLocalPath;
             if (req.files && Array.isArray(req.files.profilePicture) && req.files.profilePicture.length > 0) {
-                coverImageLocalPath = req.files.profilePicture[0].path;
+                coverImageLocalPath = req.files.coverImage[0].path;
             }
 
             // upload images to cloudinary and confirmation for upload
-            const profilePicture = await uploadOnCloudinary(profilePictureLocalPath);
-            const coverImage = await uploadOnCloudinary(coverImageLocalPath);
+            const profilePicture = profilePictureLocalPath ?  await uploadOnCloudinary(profilePictureLocalPath) : "";
+            const coverImage = coverImageLocalPath ? await uploadOnCloudinary(coverImageLocalPath) : "";
             
-            if (!profilePicture || !coverImage) {
-                throw new APIerrorHandler(400, "Sorry! We are unable to upload your file for some reason!")
-            }
+            // if (!profilePicture || !coverImage) {
+            //     throw new APIerrorHandler(400, "Sorry! We are unable to upload your file for some reason!")
+            // }
 
             // create an user-object with the form data provided by the user
             const createdUser = await User.create(
@@ -129,13 +129,17 @@ const registerUser = asyncHandlerWithPromise(
             // check for user in DB
             const getRecentlyCreatedUserFromDBbyId = await User.findById(createdUser._id).select(
                 "-password -refreshToken"
-            )
+            );
+
+            console.log(getRecentlyCreatedUserFromDBbyId.email);
 
             if (!getRecentlyCreatedUserFromDBbyId) {
                 throw new APIerrorHandler(500, "Something went wrong while registering user!")
-            }
+            };
 
             const tokenCode = generateToken();
+
+            console.log(tokenCode);
 
             await new Token({
                 user: getRecentlyCreatedUserFromDBbyId._id,
@@ -143,11 +147,13 @@ const registerUser = asyncHandlerWithPromise(
                 purpose: "To Verify Email Address",
             }).save();
 
-            userEmail = getRecentlyCreatedUserFromDBbyId.email;
-            secretCode = tokenCode;
+            // userEmail = getRecentlyCreatedUserFromDBbyId.email;
+            // console.log(userEmail);
+            // secretCode = tokenCode;
+            // console.log(secretCode);
 
-            console.log("Sending Verification Email..");
-            await sendEmail(userEmail, emailSubject, emailBody);
+            // console.log("Sending Verification Email..");
+            // await sendEmail(userEmail, emailSubject, emailBody);
 
             // if user is created, return response
             return res.status(201)
@@ -155,14 +161,15 @@ const registerUser = asyncHandlerWithPromise(
                                 new APIresponseHandler(
                                     201,
                                     getRecentlyCreatedUserFromDBbyId,
+                                    // "Thank You for registering.."
                                     `Thank you for registering ${firstName} ${lastName}, 
                                     \nAn Email sent to your email : ${email}, please verify.`
                                 )
-                            )
+                            );
 
         } catch (error) {
             console.log(error)
-            throw new APIerrorHandler(400, "Somehing went wrong while creating your account!");
+            throw new APIerrorHandler(400, "Something went wrong while creating your account!");
 
         }
 
