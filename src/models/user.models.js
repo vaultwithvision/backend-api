@@ -122,9 +122,9 @@ userSchema.methods.generateAccessToken = async function() {
             username: this.username,
             email: this.email
         },
-        // ACCESS_TOKEN_SECRET_KEY /TODO: Create a method with crypto to generate secretToken
+        process.env.ACCESS_TOKEN_SECRET ,
         {
-            //entriesIn: // ACCESS_TOKEN_EXPIRY
+            expiresIn: process.env.ACCESS_TOKEN_EXPIRY
         }
     )
 };
@@ -134,9 +134,9 @@ userSchema.methods.generateRefreshToken = async function() {
         {
             _id: this._id
         },
-        // REFRESH_TOKEN_SECRET_KEY /TODO: Create a method with crypto to generate secretToken
+        process.env.REFRESH_TOKEN_SECRET ,
         {
-            //entriesIn: // REFRESH_TOKEN_EXPIRY
+            expiresIn: process.env.REFRESH_TOKEN_EXPIRY
         }
     )
 }
