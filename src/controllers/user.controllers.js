@@ -276,8 +276,8 @@ const loginUser = asyncHandlerWithPromise(
             
             // sending response 
             return res.status(200)
-                            .cookie("access-token", accessToken, options)
-                            .cookie("refresh-token", refreshToken, options)
+                            .cookie("accessToken", accessToken, options)
+                            .cookie("refreshToken", refreshToken, options)
                             .json(
                                 new APIresponseHandler(
                                     200,
@@ -321,8 +321,8 @@ const logoutUser = asyncHandlerWithPromise(
     
             //sending response
             return res.status(200)
-                            .clearCookie("access-token", options)
-                            .clearCookie("refresh-token", options)
+                            .clearCookie("accessToken", options)
+                            .clearCookie("refreshToken", options)
                             .json(
                                 new APIerrorHandler(
                                     200, 
@@ -587,8 +587,8 @@ const deleteUserProfile = asyncHandlerWithPromise(
     
             // sending response 
             return res.status(200)
-                            .clearCookie("access-token", options)
-                            .clearCookie('refresh-token', options)
+                            .clearCookie("accessToken", options)
+                            .clearCookie('refreshToken', options)
                             .json(
                                 new APIresponseHandler(
                                     200,
@@ -603,12 +603,12 @@ const deleteUserProfile = asyncHandlerWithPromise(
     }
 );
 
-// User controller to regenerate user's access-token
+// User controller to regenerate user's accessToken
 const regenerateAccessToken = asyncHandlerWithPromise(
     async(req, res) => {
         
         try {
-            //getting the refresh-token from cookies or req-body
+            //getting the refreshToken from cookies or req-body
             const refreshToken = req.cookies.refreshToken || req.body.refreshToken;
             //checking for the refreshToken
             if (!refreshToken) {
@@ -644,8 +644,8 @@ const regenerateAccessToken = asyncHandlerWithPromise(
     
             //sending response 
             return res.status(200)
-                            .cookie("access-token", accessToken, options)
-                            .cookie('refresh-token', newRefreshToken, options)
+                            .cookie("accessToken", accessToken, options)
+                            .cookie('refreshToken', newRefreshToken, options)
                             .json(
                                 new APIresponseHandler(
                                     200,
