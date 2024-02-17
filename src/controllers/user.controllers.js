@@ -282,7 +282,9 @@ const loginUser = asyncHandlerWithPromise(
                                 new APIresponseHandler(
                                     200,
                                     {
-                                        user: loggedInUser, accessToken, refreshToken
+                                        user: loggedInUser, 
+                                        accessToken: accessToken, 
+                                        refreshToken: refreshToken
                                     },
                                     "Successfully logged-in the user."
                                 )
