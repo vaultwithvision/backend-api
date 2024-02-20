@@ -65,7 +65,7 @@ const userSchema = new mongoose.Schema(
         },
         viewHistory: [{
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'Item'
+            ref: 'Document'
         }],
         userAnalytics: {
             type: mongoose.Schema.Types.ObjectId,

@@ -242,9 +242,11 @@ const loginUser = asyncHandlerWithPromise(
             const { email, password } = req.body;
     
             // check for the email existance
-            if (!email) {
-                throw new APIerrorHandler(400, "Email is required to login!");
-            };
+            if (
+                [email, password].some((field) => field.trim() === "")
+            ) {
+                throw new APIerrorHandler(400, "Email and Password is required to login.")
+            }
     
             // find the user by email
             const user = await User.findOne(
@@ -290,7 +292,8 @@ const loginUser = asyncHandlerWithPromise(
                                 )
                             );
         } catch (error) {
-            throw new APIerrorHandler(400, "Unable to login!")
+            throw new APIerrorHandler(400, error.message);
+            // throw new APIerrorHandler(400, "Unable to login!");
         }
 
     }
@@ -724,4 +727,4 @@ export { registerUser,
             deleteUserProfile,
             regenerateAccessToken,
             forgotPassword
-    }
+}

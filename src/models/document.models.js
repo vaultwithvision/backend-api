@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 import { itemLevels } from '../constants/itemLevels.constants.js';
 
-const itemSchema = new mongoose.Schema(
+const documentSchema = new mongoose.Schema(
   {
     inArchive: {
       type: Boolean,
@@ -16,10 +16,6 @@ const itemSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    lastModified: {
-      type: Date,
-      default: Date.now,
-    },
     owningCollection: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Collection',
@@ -30,7 +26,7 @@ const itemSchema = new mongoose.Schema(
     },
     submitter: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'EPerson',
+      ref: 'User',
     },
     collections: [
       {
@@ -60,7 +56,8 @@ const itemSchema = new mongoose.Schema(
     ],
     language: {
         type: String,
-        maxlength: 10,
+        enum: spokenLanguages.map(language => language.name),
+        default: "English"
     },
     license: {
         type: String,
@@ -76,9 +73,16 @@ const itemSchema = new mongoose.Schema(
         type: String,
         enum: itemLevels.map(levelName => levelName.name),
         default: 'Public Access'
-    }
     },
+    totalViews: {
+      type: Number,
+      default: 0
+    },
+    files: [{
+      type: String,
+    }]
+  },
   { timestamps: true }
 );
 
-export const Item = mongoose.model('Item', itemSchema);
+export const Item = mongoose.model('Document', documentSchema);
