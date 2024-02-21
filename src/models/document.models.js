@@ -10,7 +10,7 @@ const documentSchema = new mongoose.Schema(
     },
     discoverable: {
       type: Boolean,
-      default: false,
+      default: true,
     },
     withdrawn: {
       type: Boolean,
@@ -44,7 +44,11 @@ const documentSchema = new mongoose.Schema(
         type: String,
         required: true,
         maxlength: 255,
-      },
+    },
+    description: {
+      type: String,
+      required: true
+    },
     abstract: {
         type: String,
     },
@@ -80,6 +84,7 @@ const documentSchema = new mongoose.Schema(
     },
     files: [{
       type: String,
+      required: true
     }]
   },
   { timestamps: true }

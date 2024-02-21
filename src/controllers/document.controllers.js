@@ -20,7 +20,7 @@ const getAlldocuments = asyncHandlerWithPromise(
 // upload a single document
 const uploadDocument = asyncHandlerWithPromise(
     async( req, res) => {
-        
+        const {} = req.body;
     }
 );
 
@@ -44,3 +44,13 @@ const deleteDocument = asyncHandlerWithPromise(
 
     }
 );
+
+
+
+export default {
+    getAlldocuments,
+    uploadDocument,
+    getDocumentByID,
+    updateDocument,
+    deleteDocument
+}
