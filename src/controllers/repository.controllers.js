@@ -155,13 +155,76 @@ const updateRepository = asyncHandlerWithPromise(
 const updateRepositoryLogo = asyncHandlerWithPromise(
     async(req, res) => {
 
+        try {
+            
+            const repoID = req.params;
+            const logoLocalPath = req.file?.path;
+
+            if (!repoID) {
+                throw new APIerrorHandler(400, "Invalid Request");
+            }
+
+            if (!logoLocalPath) {
+                throw new APIerrorHandler(400, "Logo file is required!");
+            }
+
+            const logo = await uploadOnCloudinary(logoLocalPath);
+
+            if (!logo.url) {
+                throw new APIerrorHandler(400, "Error while uploading logo!");
+            }
+
+            const repo = await Repository.findByIdAndUpdate(
+                repoID,
+                {
+                    $set: {
+                        logo: logo.url
+                    }
+                },
+                { new: true }
+            );
+
+            return res.status(200)
+                            .json(
+                                new APIresponseHandler(
+                                    200,
+                                    repo,
+                                    "Logo for the Repository has been updated successfully."
+                                )
+                            )
+
+        } catch (error) {
+            throw new APIerrorHandler(400, error.message);
+        }
+
     }
 );
 
 // delete Repository
 const deleteRepository = asyncHandlerWithPromise(
     async(req, res) => {
+        try {
+            
+            const repoID = req.params;
 
+            if (!repoID) {
+                throw new APIerrorHandler(400, "Invalid Request");
+            }
+
+            await Repository.findByIdAndDelete(repoID);
+
+            return res.status(200)
+                            .json(
+                                new APIresponseHandler(
+                                    200,
+                                    {},
+                                    "Repository has been deleted successfully."
+                                )
+                            )
+
+        } catch (error) {
+            throw new APIerrorHandler(400, error.message);
+        }
     }
 );
 
