@@ -13,20 +13,23 @@ const repositorySchema = new Schema({
     },
     legacyId: {
         type: Number,
-        required: false // Assuming it's not mandatory
     },
-    subCommunities: [{
+    subContainers: [{
         type: Schema.Types.ObjectId,
         ref: 'Container'
     }],
-    parentCommunities: [{
+    parentContainer: {
         type: Schema.Types.ObjectId,
         ref: 'Container'
-    }],
-    admins: {
-        type: Schema.Types.ObjectId,
-        ref: 'Group'
     },
+    owner: {
+        type: Schema.Types.ObjectId,
+        ref: "User"
+    },
+    admins:[{
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+    }],
     logo: {
         type: String,
         required: true
