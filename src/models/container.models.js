@@ -23,14 +23,18 @@ const containerSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'Document'
     },
-    submitters: {
+    owner: {
         type: Schema.Types.ObjectId,
-        ref: 'Group'
+        ref: 'User'
     },
-    admins: {
+    submitters: [{
         type: Schema.Types.ObjectId,
-        ref: 'Group'
-    },
+        ref: 'User'
+    }],
+    admins: [{
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+    }],
     repositories: [{
         type: Schema.Types.ObjectId,
         ref: 'Repository'

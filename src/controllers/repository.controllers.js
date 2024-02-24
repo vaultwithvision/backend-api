@@ -97,6 +97,33 @@ const getRepositoryByID = asyncHandlerWithPromise(
     }
 );
 
+// get RepositoriesUploadedByTheUser
+const getRepositoriesUploadedByTheUser = asyncHandlerWithPromise(
+    async(req, res) => {
+        try {
+            const user = req.user;
+    
+            const repositories = Repository.find( { owner: user._id });
+    
+            if (!repositories || (await repositories).length === 0) {
+                throw new APIerrorHandler(400, "No Repositories found uploaded by the user.")
+            }
+    
+            return res.status(200)
+                            .json(
+                                new APIresponseHandler(
+                                    200,
+                                    repositories,
+                                    "Repositories uploaded by the user fetched successfully."
+                                )
+                            )
+        } catch (error) {
+            throw new APIerrorHandler(400, error.message);
+        }
+
+    }
+);
+
 // update Repository
 const updateRepository = asyncHandlerWithPromise(
     async(req, res) => {
@@ -233,6 +260,7 @@ export {
     createRepository,
     getRepositoryByID,
     getAllRepositories,
+    getRepositoriesUploadedByTheUser,
     updateRepository,
     updateRepositoryLogo,
     deleteRepository

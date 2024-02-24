@@ -22,7 +22,13 @@ const createContainer = asyncHandlerWithPromise(
                 throw new APIerrorHandler(400, "You need to pass some data to create a container.");
             }
     
-            const container = await Container.create({ title, description }); 
+            const container = await Container.create({ 
+                title, 
+                description,
+                owner: req.user._id,
+                submitters: [ req.user._id],
+                admins: [req.user._id]
+             }); 
     
             if (!container) {
                 throw new APIerrorHandler(400, "Unable To Create Container Due to some reason!");
@@ -74,6 +80,33 @@ const getContainerByID = asyncHandlerWithPromise(
                                     200,
                                     container,
                                     "Container details fetched successfully."
+                                )
+                            )
+        } catch (error) {
+            throw new APIerrorHandler(400, error.message);
+        }
+
+    }
+);
+
+// get ContainersUploadedByTheUser
+const geyContainersUploadedByTheUser = asyncHandlerWithPromise(
+    async(req, res) => {
+        try {
+            const user = req.user;
+    
+            const containers = await Container.find( { owner: user._id });
+    
+            if (!containers || containers.length === 0) {
+                throw new APIerrorHandler(400, "No containers uploaded by the user.");
+            }
+    
+            return res.status(200)
+                            .json(
+                                new APIresponseHandler(
+                                    200,
+                                    containers,
+                                    "Containers uploaded by the user fetched successfuly."
                                 )
                             )
         } catch (error) {
@@ -197,6 +230,8 @@ export  {
     createContainer,
     getAllContainers,
     getContainerByID,
+    geyContainersUploadedByTheUser,
     updateContainer,
+    updateContainerLogo,
     deleteContainer
 }

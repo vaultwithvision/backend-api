@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 
 import { itemLevels } from '../constants/itemLevels.constants.js';
 
@@ -16,30 +16,22 @@ const documentSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    owningCollection: {
+    owningRepository: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Collection',
+      ref: 'Repository',
     },
     templateItemOf: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Collection',
+      ref: 'Repository',
     },
     submitter: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
     },
-    collections: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Collection',
-      },
-    ],
-    bundles: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Bundle',
-      },
-    ],
+    files: [{
+      type: String,
+      required: true
+    }],
     title: {
         type: String,
         required: true,
@@ -56,6 +48,7 @@ const documentSchema = new mongoose.Schema(
     {
         type: String,
         maxlength: 50,
+        required: true
     },
     ],
     language: {
@@ -82,12 +75,12 @@ const documentSchema = new mongoose.Schema(
       type: Number,
       default: 0
     },
-    files: [{
-      type: String,
-      required: true
-    }]
+    owner: {
+      type: Schema.Types.ObjectId,
+      ref: "User"
+    }
   },
   { timestamps: true }
 );
 
-export const Item = mongoose.model('Document', documentSchema);
+export const Document = mongoose.model('Document', documentSchema);
