@@ -90,7 +90,7 @@ const getContainerByID = asyncHandlerWithPromise(
 );
 
 // get ContainersUploadedByTheUser
-const geyContainersUploadedByTheUser = asyncHandlerWithPromise(
+const getContainersUploadedByTheUser = asyncHandlerWithPromise(
     async(req, res) => {
         try {
             const user = req.user;
@@ -229,7 +229,7 @@ export  {
     createContainer,
     getAllContainers,
     getContainerByID,
-    geyContainersUploadedByTheUser,
+    getContainersUploadedByTheUser,
     updateContainer,
     updateContainerLogo,
     deleteContainer

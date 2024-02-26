@@ -13,3 +13,21 @@ import { verifyJWT } from '../middlewares/auth.middlewares.js';
 import { upload } from '../middlewares/multer.middlewares.js';
 
 
+const router = Router();
+
+router.use(verifyJWT);
+
+router.route("/")
+        .get(getAllRepositories)
+        .post(createRepository);
+
+
+router.route("/:repository:ID")
+        .get(getRepositoryByID)
+        .get(getRepositoriesUploadedByTheUser)
+        .patch(updateRepository)
+        .patch(upload.single("logo"), updateRepositoryLogo)
+        .delete(deleteRepository);
+
+
+export default router;

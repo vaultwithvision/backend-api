@@ -4,7 +4,7 @@ import {
     createContainer,
     getAllContainers,
     getContainerByID,
-    geyContainersUploadedByTheUser,
+    getContainersUploadedByTheUser,
     updateContainer,
     updateContainerLogo,
     deleteContainer
@@ -26,6 +26,7 @@ router.route("/")
 
 router.route("/:containerID")
         .get(getContainerByID)
+        .get(getContainersUploadedByTheUser)
         .patch(updateContainer)
         .patch(upload.single("logo"), updateContainerLogo)
         .delete(deleteContainer);
