@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 
+import mongooseAggregatePaginate from 'mongoose-aggregate-paginate-v2';
+
 const Schema = mongoose.Schema;
 
 // Define the schema for the Container model
@@ -41,6 +43,7 @@ const containerSchema = new Schema({
     }]
 });
 
+containerSchema.plugin(mongooseAggregatePaginate);
 
 // Create the Container model using the schema
 export const Container = mongoose.model('Container', containerSchema);
