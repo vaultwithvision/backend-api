@@ -22,11 +22,11 @@ router.use(verifyJWT);
 // routes for Container
 router.route("/")
         .get(getAllContainers)
+        .get(getContainersUploadedByTheUser)
         .post(createContainer)
 
 router.route("/:containerID")
         .get(getContainerByID)
-        .get(getContainersUploadedByTheUser)
         .patch(updateContainer)
         .patch(upload.single("logo"), updateContainerLogo)
         .delete(deleteContainer);

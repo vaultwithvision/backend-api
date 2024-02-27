@@ -19,12 +19,11 @@ router.use(verifyJWT);
 
 router.route("/")
         .get(getAllRepositories)
+        .get(getRepositoriesUploadedByTheUser)
         .post(createRepository);
-
 
 router.route("/:repository:ID")
         .get(getRepositoryByID)
-        .get(getRepositoriesUploadedByTheUser)
         .patch(updateRepository)
         .patch(upload.single("logo"), updateRepositoryLogo)
         .delete(deleteRepository);
